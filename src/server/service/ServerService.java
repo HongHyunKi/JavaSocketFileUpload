@@ -1,12 +1,9 @@
 package server.service;
 
-
 import server.constants.SERVER_CONSTANTS;
 import server.info.FileLog;
 import server.info.LoginInfo;
-
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,30 +14,21 @@ import java.util.logging.Logger;
  * 서버에서 실행할 로직 , SERVICE
  */
 public class ServerService {
-
     Logger logger;
     LoginInfo loginInfo;
     FileLog fileLog;
     List<Map<String, Object>> socketList;
-    String id;
-    Socket clientSocket;
     Socket targetSocket;
-
     List<Map<String, Object>> targetList;
-
     String msg;
     PrintWriter writer;
-
     LocalDateTime localDateTime;
     DateTimeFormatter formatter;
-
     String nowTime;
-
     ObjectOutputStream obj;
 
     /**
      * 생성자
-     *
      * @param loginInfo
      */
     public ServerService(LoginInfo loginInfo) {
@@ -48,7 +36,6 @@ public class ServerService {
         this.fileLog = new FileLog();
         this.logger = Logger.getLogger("server.service.ServerService");
     }
-
 
     /**
      * 로그인 후 접속
@@ -60,29 +47,23 @@ public class ServerService {
         logger.info(id + "접속 완료");
     }
 
-
-
     /**
      * 서버에 파일 저장 실행
      */
     public void saveFile(String id, List<Map<String, Object>> data) {
         //기존에 먼저 파일을 올린적이 있는지 검사
-        //이름으로 파일
         List<Map<String, String>> fileList = fileLog.getFileList();
 
         if (fileList.size() > 0) {
             saveProccess(id, fileList, data);
         } else {
-            // 바로 저장
             saveProccess(id, fileList, data);
         }
-
     }
 
 
     /**
      * 데이터 저장 로직
-     *
      * @param id
      * @param data
      */
@@ -100,7 +81,7 @@ public class ServerService {
                     fileOutputStream.write(bytes);
                     fileLog.setFileList(id, fileName);
 
-                    msg = "가" + fileName + "을 업로드 하였습니다.";
+                    msg = id+ "가" + fileName + "을 업로드 하였습니다.";
                     sendAllMessage(id, msg);
                     logger.info(fileName + "업로드 완료");
                 } catch (Exception e) {
@@ -130,7 +111,7 @@ public class ServerService {
                     FileOutputStream fileOutputStream = new FileOutputStream(SERVER_CONSTANTS.SERVER_PATH + fileName);
                     fileOutputStream.write(bytes);
                     fileLog.setFileList(id, fileName);
-                    msg = "가" + fileName + "을 수정하였습니다.";
+                    msg = id + "가" + fileName + "을 수정하였습니다.";
                     sendAllMessage(id, msg);
                     logger.info(fileName + " 수정 완료");
 
@@ -150,12 +131,12 @@ public class ServerService {
 
     /**
      * 수정된 파일 CLIENT에게 전송
-     *
      * @param fileName
      * @param bytes
      */
     public void sendModifyFile(String fileName, byte[] bytes) {
         List<Map<String, Object>> infoData = loginInfo.getSendInfo();
+
         Socket sendSocket = null;
         String sendId = null;
         for (Map<String, Object> info : infoData) {
@@ -167,7 +148,7 @@ public class ServerService {
                 sendList.add(sendMap);
 
                 sendSocket = (Socket) info.get("socket");
-                sendId = (String) info.get("id");
+                sendId = (String) info.get("targetId");
                 //전송하는 object 전송하는 로직 실행
                 sendTargetObject(sendSocket, sendList);
                 //메세지 전송하는 로직 실행
@@ -182,7 +163,6 @@ public class ServerService {
      * 서버 파일 삭제
      */
     public void deleteFile(String id, List<Map<String, Object>> data) {
-
         String fileName = null;
         for (Map<String, Object> updateList : data) {
             fileName = (String) updateList.get("fileName");
@@ -191,7 +171,7 @@ public class ServerService {
                 try {
                     file.delete();
                     fileLog.deleteFileList(fileName);
-                    msg = "가" + fileName + "을 삭제하였습니다.";
+                    msg = id + " 가" + fileName + "을 삭제하였습니다.";
                     sendAllMessage(id, msg);
                     logger.info(fileName + " 삭제 완료");
                 } catch (Exception e) {
@@ -207,7 +187,6 @@ public class ServerService {
 
     /**
      * 파일 전송
-     *
      * @param id
      * @param targetId
      * @param data
@@ -228,7 +207,6 @@ public class ServerService {
 
     /**
      * 파일 전송 프로세스
-     *
      * @param id
      * @param targetSocket
      * @param fileList
@@ -287,7 +265,6 @@ public class ServerService {
 
     /**
      * 소켓 접속 종료
-     *
      * @param id
      */
     public void socketOut(String id) {
@@ -315,7 +292,6 @@ public class ServerService {
 
     /**
      * 클라이언트 전송 메세지 생성
-     *
      * @return
      */
     public List<Map<String , Object>> makeMsg(String text) {
@@ -346,9 +322,6 @@ public class ServerService {
             obj = new ObjectOutputStream(socketId.getOutputStream());
             obj.writeObject(makeMsg(msg));
             obj.flush();
-//            writer = new PrintWriter(socketId.getOutputStream());
-//            writer.println(makeMsg(msg));
-//            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -357,7 +330,6 @@ public class ServerService {
 
     /**
      * client에게 파일 전송
-     *
      * @param targetData
      */
     public void sendTargetObject(Socket socket, List<Map<String, Object>> targetData) {
@@ -382,15 +354,9 @@ public class ServerService {
                 obj = new ObjectOutputStream(socket.getOutputStream());
                 obj.writeObject(makeMsg(msg));
                 obj.flush();
-//                writer = new PrintWriter(socket.getOutputStream());
-//                writer.println(makeMsg(msg));
-//                writer.flush();
             } catch (IOException e) {
                 e.printStackTrace();
-
             }
         }
     }
-
-
 }

@@ -33,7 +33,7 @@ public class LoginInfo {
 
     public void deleteSendInfo(String id) {
         for (int i = 0; i < sendInfo.size(); i++) {
-            if (sendInfo.get(i).get("id").equals(id)) {
+            if (sendInfo.get(i).get("id").equals(id.toString())) {
                 sendInfo.remove(i);
             }
         }
@@ -60,8 +60,9 @@ public class LoginInfo {
     }
 
     public Socket findTarget(String targetId) {
+
         for (Map<String, Object> data : loginInfo) {
-            if (targetId.equals(data.get("id"))) {
+            if (targetId.equals(data.get("id").toString())) {
                 return (Socket) data.get("socket");
             }
         }
