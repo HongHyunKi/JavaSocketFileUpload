@@ -1,7 +1,6 @@
 package client;
 
 import client.constants.CLIENT_CONSTANTS;
-import server.constants.SERVER_CONSTANTS;
 
 import java.io.*;
 import java.net.Socket;
@@ -180,43 +179,6 @@ public class SocketHandler {
         socket.close();
     }
 
-    // 파일 동기화
-    public void synchronizationFile (String id) throws IOException {
-        List<Map<String, Object>> requestData = new ArrayList<>();
-        Map<String, Object> infoMap = new HashMap<>();
-        String folderPath = CLIENT_CONSTANTS.CLIENT_PATH +getId()+"/"; // 가져올 폴더 경로 설정
-
-        //정보 담는 맵
-        infoMap.put("command", "synchronizationFile");
-        infoMap.put("id", id);
-        requestData.add(infoMap);
-
-        //폴더 내 파일 목록 가져오기
-        File folder = new File(folderPath);
-        File[] files = folder.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    Map<String, Object> fileMap = new HashMap<>();
-                    fileMap.put("fileName", file.getName());
-                    fileMap.put("fileByte", fileToByteArray(file));
-
-                    requestData.add(fileMap);
-                }
-            }
-        }
-
-        System.out.println("파일 동기화 My Files : "+requestData);
-
-        Socket socket = new Socket("localhost" , 8091);
-        ObjectOutputStream obj = new ObjectOutputStream(socket.getOutputStream());
-
-        obj.writeObject(requestData);
-        obj.flush(); // 데이터를 즉시 전송
-        socket.close();
-    }
-
     //텍스트 데이터 수신 데몬
     public void startListeningThread() throws IOException {
         Thread thread = new Thread(new Runnable() {
@@ -224,14 +186,10 @@ public class SocketHandler {
             public void run() {
                 try {
                     while (true) {
-//                        List<Map<String, Object>> objectList = (ArrayList<Map<String, Object>>) data;
                         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
                         List<Map<String, Object>> data = (ArrayList<Map<String, Object>>) objectInputStream.readObject();
 
-                        System.out.println("데이터:"+data);
-
                         if (data != null){
-
                             for (Map<String, Object> map : data) {
                                 if (map.containsKey("string")) {
                                     msgArr.add( map.get("string").toString() );
@@ -240,13 +198,13 @@ public class SocketHandler {
                                     break;
                                 }
                             }
-
                         }
+
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         });
@@ -255,23 +213,17 @@ public class SocketHandler {
 
     //파일 저장
     public void saveFile(List<Map<String, Object>> data){
-        String msg = null;
         String fileName = null;
-
-        System.out.println("파일저장 요청이 오긴 함");
-
         for (Map<String, Object> saveList : data) {
             fileName = (String) saveList.get("fileName");
 
             byte[] bytes = (byte[]) saveList.get("fileByte");
+
             try {
+                //사용자의 개인 Storage(파일경로)에 파일을 저장
                 FileOutputStream fileOutputStream = new FileOutputStream(CLIENT_CONSTANTS.CLIENT_PATH +getId()+"/"+fileName);
                 fileOutputStream.write(bytes);
 
-                System.out.println("경로:"+CLIENT_CONSTANTS.CLIENT_PATH +getId()+"/"+fileName);
-
-                msg = fileName +"을 저장 성공";
-                System.out.println(msg);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -304,7 +256,6 @@ public class SocketHandler {
                 }
             }
         }
-
         return bytesArray;
     }
 

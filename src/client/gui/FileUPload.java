@@ -11,7 +11,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.List;
 
 public class FileUPload extends JFrame {
@@ -134,21 +133,6 @@ public class FileUPload extends JFrame {
             }
         });
 
-        // 동기화 버튼
-//        JButton syncButton = new JButton("동기화");
-//        syncButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//
-//                try {
-//                    socketHandler.synchronizationFile(socketHandler.getId());
-//                } catch (IOException ex) {
-//                    throw new RuntimeException(ex);
-//                }
-//
-//            }
-//        });
-
         // 개인 전송 버튼
         JButton sendButton = new JButton("보내기");
         sendButton.addActionListener(new ActionListener() {
@@ -173,7 +157,6 @@ public class FileUPload extends JFrame {
             }
         });
 
-        //여기넣음
         // 파일 리스트 스크롤 패널
         JScrollPane fileScrollPane = new JScrollPane(fileList);
 
@@ -216,7 +199,6 @@ public class FileUPload extends JFrame {
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-
         // 전체 패널을 프레임의 중앙에 배치
         add(mainPanel, BorderLayout.CENTER);
 
@@ -234,12 +216,12 @@ public class FileUPload extends JFrame {
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
+
                     dispose(); // 프레임 닫기
                     System.exit(0); // 프로그램 종료
                 }
             }
         });
-
         setVisible(true);
     }
 
@@ -308,10 +290,10 @@ public class FileUPload extends JFrame {
                     refreshFileList();
 
                     frame.dispose();
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-
             }
         });
 

@@ -10,10 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Map;
 
 public class Login {
-    Socket socket;
     SocketHandler socketHandler;
 
     public Login(SocketHandler socketHandler){
